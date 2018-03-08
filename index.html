@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>SQL Cmd Translator</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.js"></script>
+</head>
+<style>
+    html,
+    head,
+    body {
+        height: 100%;
+    }
+
+    .minh-30 {
+        min-height: 40%;
+    }
+
+    .h-10 {
+        height: 10%;
+    }
+
+    .bg-disabled {
+        background-color: rgb(235, 235, 228);
+    }
+
+    .position-absolute-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -webkit-transform: translate(-50%, -50%);
+        -moz-transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        -o-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+    }
+</style>
+
+<body class="position-relative">
+    <h1 class="text-center">SQL Cmd Translator</h1>
+    <div class="container h-100">
+        <form action="" class="h-100">
+            <textarea class="w-100 minh-30 mt-2 mb-2" id="js-input"></textarea>
+            <div class="d-flex justify-content-center">
+                <button type="button" class="btn btn-primary mr-2" id="js-translate">Translate</button>
+                <button type="button" class="btn btn-success mr-2" id="js-copy">Copy to Clipboard</button>
+                <button type="reset" class="btn btn-danger">Clear</button>
+            </div>
+            <textarea class="w-100 minh-30 mt-2 mb-2 bg-disabled" id="js-output" readonly></textarea>
+        </form>
+    </div>
+    <div class="alert alert-success position-absolute-center fade" id="js-copy-success" role="alert">
+        Copy to Clipboard success
+    </div>
+</body>
+
+<script>
+    const TAB_SPACING = 4;
+
+    $("#js-translate").click(function () {
+        clearValue("#js-output");
+        let inputText = getValue("#js-input");
+        let ouputText = getSQL2JsString(inputText);
+        setValue("#js-output", ouputText);
+    });
+
+    $("#js-copy").click(function () {
+        $("#js-output").select();
+        document.execCommand("copy");
+        popAlert();
+    });
+
+    function popAlert() {
+        $("#js-copy-success").addClass("show");
+        setTimeout(function () {
+            $("#js-copy-success").removeClass("show");
+        }, 1000);
+    }
+
+    function clearValue(selector) {
+        $(selector).val("");
+    }
+
+    function getValue(selector) {
+        return $(selector).val();
+    }
+
+    function setValue(selector, value) {
+        return $(selector).val(value);
+    }
+
+    function getSQL2JsString(inputText) {
+        let outputText = inputText;
+        outputText = replaceTab2Spacing(outputText);
+        outputText = replaceAll(outputText, "\"", "'");
+        outputText = translate2JsString(outputText);
+
+        return outputText;
+    }
+
+    function replaceTab2Spacing(text) {
+        let space = "";
+        let beforeText = "";
+        for (let index = 0; index < TAB_SPACING; index++) {
+            space += " ";
+        }
+
+        text = replaceAll(text, '\t', space);
+        return text;
+    }
+
+    function replaceAll(text, pattern, replacement) {
+        let beforeText = "";
+        while (beforeText != text) {
+            beforeText = text;
+            text = _.replace(text, pattern, replacement);
+        }
+
+        return text
+    }
+
+    function translate2JsString(text) {
+        let result = "";
+        let textArray = _.split(text, "\n");
+        _.forEach(textArray, function (value, key) {
+            value = _.trimEnd(value);
+            // pad space and double quotes in the end
+            value = _.padEnd(value, value.length + 2, " \"");
+            // pad double quotes in front
+            value = padDoubleQuotes(value);
+            if (key != _.size(textArray) - 1) {
+                value = _.padEnd(value, value.length + 2, " +");
+                result += value + "\n";
+            }
+            else {
+                value = _.padEnd(value, value.length + 1, ";");
+                result += value;
+            }
+
+        });
+
+        return result;
+    }
+
+    // pad double quotes in front and end
+    function padDoubleQuotes(text) {
+        let flag = true;
+        let last = " ";
+        let insertPos = 0;
+        _.forEach(text, function (value) {
+            if (last == " " && value != " " && flag) {
+                flag = false;
+            }
+            else if (flag) {
+                last = value;
+                insertPos++;
+            }
+
+        });
+
+        text = text.slice(0, insertPos) + "\"" + text.slice(insertPos);
+        return text;
+    }
+
+
+</script>
+
+</html>
