@@ -38,34 +38,51 @@
         -o-transform: translate(-50%, -50%);
         transform: translate(-50%, -50%);
     }
+
+    .h-5 {
+        height: 5%;
+    }
+
+    .h-95 {
+        height: 95%;
+    }
 </style>
 
 <body class="position-relative">
-    <nav class="navbar-dark bg-dark text-center">
+    <nav class="navbar-dark bg-dark h-5 d-flex align-items-center justify-content-center">
         <span class="navbar-brand h1">
             SQL Cmd Translator
         </span>
     </nav>
-    <div class="container-fluid h-100">
+    <div class="container-fluid h-95">
         <div class="row h-100">
-            <div class="col-sm-2 d-flex border-right align-items-center">
-                
+            <div class="col-sm-2 border-right p-3">
+                <h2 class="text-center">Setting</h2>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">1 Tab = </span>
+                    </div>
+                    <input type="text" class="form-control" id="js-tab2Spaces">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">spaces</span>
+                    </div>
+                </div>
             </div>
             <div class="col-sm-10 h-100 p-2">
-                    <textarea class="w-100 minh-35 mt-2 mb-2" id="js-input"></textarea>
-                    <div class="d-flex justify-content-center">
-                        <button type="button" class="btn btn-primary mr-2" id="js-translate">Translate to SQL
-                            <i class="fas fa-arrow-up"></i>
-                        </button>
-                        <button type="button" class="btn btn-primary mr-2" id="js-translate">Translate to js code
-                            <i class="fas fa-arrow-down"></i>
-                        </button>
-                        <button type="reset" class="btn btn-danger">Clear</button>
-                    </div>
-                    <textarea class="w-100 minh-35 mt-2 mb-2" id="js-output"></textarea>
-                    <div class="d-flex">
-                        <button type="button" class="btn btn-success ml-auto" id="js-copy">Copy to Clipboard</button>
-                    </div>
+                <textarea class="w-100 minh-35 mt-2 mb-2" id="js-input"></textarea>
+                <div class="d-flex justify-content-center">
+                    <button type="button" class="btn btn-primary mr-2" id="js-translate">Translate to SQL
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
+                    <button type="button" class="btn btn-primary mr-2" id="js-translate">Translate to js code
+                        <i class="fas fa-arrow-down"></i>
+                    </button>
+                    <button type="reset" class="btn btn-danger">Clear</button>
+                </div>
+                <textarea class="w-100 minh-35 mt-2 mb-2" id="js-output"></textarea>
+                <div class="d-flex">
+                    <button type="button" class="btn btn-success ml-auto" id="js-copy">Copy to Clipboard</button>
+                </div>
                 </form>
             </div>
         </div>
@@ -77,6 +94,14 @@
 
 <script>
     const TAB_SPACING = 4;
+
+    $(document).ready(function () {
+        initTabInput();
+    });
+
+    function initTabInput() {
+        $("#js-tab2Spaces").val(TAB_SPACING);
+    }
 
     $("#js-translate").click(function () {
         clearValue("#js-output");
@@ -120,9 +145,10 @@
     }
 
     function replaceTab2Spacing(text) {
+        const tabValue = $("#js-tab2Spaces").val();
         let space = "";
         let beforeText = "";
-        for (let index = 0; index < TAB_SPACING; index++) {
+        for (let index = 0; index < tabValue; index++) {
             space += " ";
         }
 
