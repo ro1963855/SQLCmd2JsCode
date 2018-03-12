@@ -15,6 +15,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
 </head>
 <style>
     html,
@@ -23,16 +24,8 @@
         height: 100%;
     }
 
-    .minh-30 {
-        min-height: 40%;
-    }
-
-    .h-10 {
-        height: 10%;
-    }
-
-    .bg-disabled {
-        background-color: rgb(235, 235, 228);
+    .minh-35 {
+        min-height: 35%;
     }
 
     .position-absolute-center {
@@ -48,20 +41,37 @@
 </style>
 
 <body class="position-relative">
-    <h1 class="text-center">SQL Cmd Translator</h1>
-    <div class="container h-100">
-        <form action="" class="h-100">
-            <textarea class="w-100 minh-30 mt-2 mb-2" id="js-input"></textarea>
-            <div class="d-flex justify-content-center">
-                <button type="button" class="btn btn-primary mr-2" id="js-translate">Translate</button>
-                <button type="button" class="btn btn-success mr-2" id="js-copy">Copy to Clipboard</button>
-                <button type="reset" class="btn btn-danger">Clear</button>
+    <nav class="navbar-dark bg-dark text-center">
+        <span class="navbar-brand h1">
+            SQL Cmd Translator
+        </span>
+    </nav>
+    <div class="container-fluid h-100">
+        <div class="row h-100">
+            <div class="col-sm-2 d-flex border-right align-items-center">
+                
             </div>
-            <textarea class="w-100 minh-30 mt-2 mb-2 bg-disabled" id="js-output" readonly></textarea>
-        </form>
-    </div>
-    <div class="alert alert-success position-absolute-center fade" id="js-copy-success" role="alert">
-        Copy to Clipboard success
+            <div class="col-sm-10 h-100 p-2">
+                    <textarea class="w-100 minh-35 mt-2 mb-2" id="js-input"></textarea>
+                    <div class="d-flex justify-content-center">
+                        <button type="button" class="btn btn-primary mr-2" id="js-translate">Translate to SQL
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                        <button type="button" class="btn btn-primary mr-2" id="js-translate">Translate to js code
+                            <i class="fas fa-arrow-down"></i>
+                        </button>
+                        <button type="reset" class="btn btn-danger">Clear</button>
+                    </div>
+                    <textarea class="w-100 minh-35 mt-2 mb-2" id="js-output"></textarea>
+                    <div class="d-flex">
+                        <button type="button" class="btn btn-success ml-auto" id="js-copy">Copy to Clipboard</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="alert alert-success position-absolute-center fade" id="js-copy-success" role="alert">
+            Copy to Clipboard success
+        </div>
     </div>
 </body>
 
