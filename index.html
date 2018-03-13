@@ -69,26 +69,31 @@
                 </div>
             </div>
             <div class="col-sm-10 h-100 p-2">
-                <textarea class="w-100 minh-35 mt-2 mb-2" id="js-input"></textarea>
-                <div class="d-flex justify-content-center">
-                    <button type="button" class="btn btn-primary mr-2" id="js-translate">Translate to SQL
-                        <i class="fas fa-arrow-up"></i>
-                    </button>
-                    <button type="button" class="btn btn-primary mr-2" id="js-translate">Translate to js code
-                        <i class="fas fa-arrow-down"></i>
-                    </button>
-                    <button type="reset" class="btn btn-danger">Clear</button>
-                </div>
-                <textarea class="w-100 minh-35 mt-2 mb-2" id="js-output"></textarea>
-                <div class="d-flex">
-                    <button type="button" class="btn btn-success ml-auto" id="js-copy">Copy to Clipboard</button>
-                </div>
+                <form class="h-100">
+                    <textarea class="w-100 minh-35 mt-2 mb-2" id="js-InputSQL"></textarea>
+                    <div class="d-flex">
+                        <button type="button" class="btn btn-success ml-auto" id="js-copySQL">Copy to Clipboard</button>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <button type="button" class="btn btn-primary mr-2" id="js-translate2SQL">Translate to SQL
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                        <button type="reset" class="btn btn-danger mr-2">Clear</button>
+                        <button type="button" class="btn btn-primary mr-2" id="js-translate2js">Translate to js code
+                            <i class="fas fa-arrow-down"></i>
+                        </button>
+                    </div>
+                    <textarea class="w-100 minh-35 mt-2 mb-2" id="js-InputJs"></textarea>
+                    <div class="d-flex">
+                        <button type="button" class="btn btn-success ml-auto" id="js-copyJs">Copy to Clipboard</button>
+                    </div>
                 </form>
             </div>
         </div>
-        <div class="alert alert-success position-absolute-center fade" id="js-copy-success" role="alert">
-            Copy to Clipboard success
-        </div>
+    </div>
+    <div class="alert alert-success position-absolute-center fade d-none" id="js-copy-success" role="alert">
+        Copy to Clipboard success
+    </div>
     </div>
 </body>
 
@@ -103,23 +108,40 @@
         $("#js-tab2Spaces").val(TAB_SPACING);
     }
 
-    $("#js-translate").click(function () {
-        clearValue("#js-output");
-        let inputText = getValue("#js-input");
+    $("#js-translate2js").click(function () {
+        clearValue("#js-InputJs");
+        let inputText = getValue("#js-InputSQL");
         let ouputText = getSQL2JsString(inputText);
-        setValue("#js-output", ouputText);
+        setValue("#js-InputJs", ouputText);
     });
 
-    $("#js-copy").click(function () {
-        $("#js-output").select();
+    $("#js-translate2SQL").click(function () {
+        clearValue("#js-InputSQL");
+        let inputText = getValue("#js-InputJs");
+        let ouputText = getJs2SQLString(inputText);
+        setValue("#js-InputSQL", ouputText);
+    });
+
+    $("#js-copyJs").click(function () {
+        copyInputContent("#js-InputJs");
+    });
+
+    $("#js-copySQL").click(function () {
+        copyInputContent("#js-InputSQL");
+    });
+
+    function copyInputContent(selector) {
+        $(selector).select();
         document.execCommand("copy");
         popAlert();
-    });
+    }
 
     function popAlert() {
+        $("#js-copy-success").removeClass("d-none");
         $("#js-copy-success").addClass("show");
         setTimeout(function () {
             $("#js-copy-success").removeClass("show");
+            $("#js-copy-success").addClass("d-none");
         }, 1000);
     }
 
@@ -141,6 +163,13 @@
         outputText = replaceAll(outputText, "\"", "'");
         outputText = translate2JsString(outputText);
 
+        return outputText;
+    }
+
+    function getJs2SQLString(inputText) {
+        let outputText = inputText;
+        outputText = replaceTab2Spacing(outputText);
+        outputText = translate2SQLString(outputText);
         return outputText;
     }
 
@@ -189,8 +218,41 @@
         return result;
     }
 
+    function translate2SQLString(text) {
+        let result = "";
+        let textArray = _.split(text, "\n");
+        _.forEach(textArray, function (value, key) {
+            value = _.trimEnd(value);
+            value = removeDoubleQuotes(value);
+            if (key != _.size(textArray) - 1) {
+                value = _.trimEnd(value, "\" +");
+                result += value + "\n";
+            }
+            else {
+                value = _.trimEnd(value, "\";");
+                result += value;
+            }
+
+        });
+
+        return result;
+    }
+
     // pad double quotes in front and end
     function padDoubleQuotes(text) {
+        let insertPos = getFirstNotSpacePosition(text);
+        text = text.slice(0, insertPos) + "\"" + text.slice(insertPos);
+        return text;
+    }
+
+    // pad double quotes in front and end
+    function removeDoubleQuotes(text) {
+        let insertPos = getFirstNotSpacePosition(text);
+        text = text.slice(0, insertPos) + text.slice(insertPos + 1);
+        return text;
+    }
+
+    function getFirstNotSpacePosition(text) {
         let flag = true;
         let last = " ";
         let insertPos = 0;
@@ -205,10 +267,8 @@
 
         });
 
-        text = text.slice(0, insertPos) + "\"" + text.slice(insertPos);
-        return text;
+        return insertPos;
     }
-
 
 </script>
 
