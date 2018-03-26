@@ -67,6 +67,24 @@
                         <span class="input-group-text">spaces</span>
                     </div>
                 </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Major symbol</span>
+                    </div>
+                    <input type="text" class="form-control" id="js-majorSymbol">
+                </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Sub symbol</span>
+                    </div>
+                    <input type="text" class="form-control" id="js-subSymbol">
+                </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Connector symbol</span>
+                    </div>
+                    <input type="text" class="form-control" id="js-connectorSymbol">
+                </div>
             </div>
             <div class="col-sm-10 h-100 p-2">
                 <form class="h-100">
@@ -79,13 +97,13 @@
                             <i class="fas fa-arrow-up"></i>
                         </button>
                         <button type="reset" class="btn btn-danger mr-2">Clear</button>
-                        <button type="button" class="btn btn-primary mr-2" id="js-translate2js">Translate to js code
+                        <button type="button" class="btn btn-primary mr-2" id="js-translate2Code">Translate to code
                             <i class="fas fa-arrow-down"></i>
                         </button>
                     </div>
-                    <textarea class="w-100 minh-35 mt-2 mb-2" id="js-InputJs"></textarea>
+                    <textarea class="w-100 minh-35 mt-2 mb-2" id="js-InputCode"></textarea>
                     <div class="d-flex">
-                        <button type="button" class="btn btn-success ml-auto" id="js-copyJs">Copy to Clipboard</button>
+                        <button type="button" class="btn btn-success ml-auto" id="js-copyCode">Copy to Clipboard</button>
                     </div>
                 </form>
             </div>
@@ -98,40 +116,66 @@
 </body>
 
 <script>
-    const TAB_SPACING = 4;
-	const MAJOR_STRING_SYMBOL = "'";
-	const SUB_STRING_SYMBOL = "'\"";
-	
+    const DEFAULT_TAB_SPACING = 4;
+    const DEFAULT_MAJOR_STRING_SYMBOL = "'";
+    const DEFAULT_SUB_STRING_SYMBOL = "\"";
+    const DEFAULT_CONNECTOR_SYMBOL = "+";
+    let tab_sapcing = DEFAULT_TAB_SPACING;
+    let major_symbol = DEFAULT_MAJOR_STRING_SYMBOL;
+    let sub_symbol = DEFAULT_SUB_STRING_SYMBOL;
+    let connector_symbol = DEFAULT_CONNECTOR_SYMBOL;
+
     $(document).ready(function () {
-        initTabInput();
+        initSetting();
     });
 
-    function initTabInput() {
-        $("#js-tab2Spaces").val(TAB_SPACING);
+    // init start
+    function initSetting() {
+        $("#js-tab2Spaces").val(DEFAULT_TAB_SPACING);
+        $("#js-majorSymbol").val(DEFAULT_MAJOR_STRING_SYMBOL);
+        $("#js-subSymbol").val(DEFAULT_SUB_STRING_SYMBOL);
+        $("#js-connectorSymbol").val(DEFAULT_CONNECTOR_SYMBOL);
     }
+    // init end
+    // listener start
+    $("#js-tab2Spaces").change(function () {
+        tab_sapcing = $(this).val();
+    });
 
-    $("#js-translate2js").click(function () {
-        clearValue("#js-InputJs");
+    $("#js-majorSymbol").change(function () {
+        major_symbol = $(this).val();
+    });
+
+    $("#js-subSymbol").change(function () {
+        sub_symbol = $(this).val();
+    });
+
+    $("#js-connectorSymbol").change(function () {
+        connector_symbol = $(this).val();
+    });
+
+    $("#js-translate2Code").click(function () {
+        clearValue("#js-InputCode");
         let inputText = getValue("#js-InputSQL");
-        let ouputText = getSQL2JsString(inputText);
-        setValue("#js-InputJs", ouputText);
+        let ouputText = getSQL2CodeString(inputText);
+        setValue("#js-InputCode", ouputText);
     });
 
     $("#js-translate2SQL").click(function () {
         clearValue("#js-InputSQL");
-        let inputText = getValue("#js-InputJs");
-        let ouputText = getJs2SQLString(inputText);
+        let inputText = getValue("#js-InputCode");
+        let ouputText = getCode2SQLString(inputText);
         setValue("#js-InputSQL", ouputText);
     });
 
-    $("#js-copyJs").click(function () {
-        copyInputContent("#js-InputJs");
+    $("#js-copyCode").click(function () {
+        copyInputContent("#js-InputCode");
     });
 
     $("#js-copySQL").click(function () {
         copyInputContent("#js-InputSQL");
     });
-
+    // listener end
     function copyInputContent(selector) {
         $(selector).select();
         document.execCommand("copy");
@@ -159,16 +203,16 @@
         return $(selector).val(value);
     }
 
-    function getSQL2JsString(inputText) {
+    function getSQL2CodeString(inputText) {
         let outputText = inputText;
         outputText = replaceTab2Spacing(outputText);
-        outputText = replaceAll(outputText, MAJOR_STRING_SYMBOL, SUB_STRING_SYMBOL);
-        outputText = translate2JsString(outputText);
+        outputText = replaceAll(outputText, major_symbol, sub_symbol);
+        outputText = translate2CodeString(outputText);
 
         return outputText;
     }
 
-    function getJs2SQLString(inputText) {
+    function getCode2SQLString(inputText) {
         let outputText = inputText;
         outputText = replaceTab2Spacing(outputText);
         outputText = translate2SQLString(outputText);
@@ -176,7 +220,7 @@
     }
 
     function replaceTab2Spacing(text) {
-        const tabValue = $("#js-tab2Spaces").val();
+        const tabValue = tab_sapcing;
         let space = "";
         let beforeText = "";
         for (let index = 0; index < tabValue; index++) {
@@ -197,20 +241,18 @@
         return text
     }
 
-    function translate2JsString(text) {
+    function translate2CodeString(text) {
         let result = "";
         let textArray = _.split(text, "\n");
         _.forEach(textArray, function (value, key) {
             value = _.trimEnd(value);
-            // pad space and double quotes in the end
-            value = _.padEnd(value, value.length + 2, " " + MAJOR_STRING_SYMBOL);
-            // pad double quotes in front
-            value = padDoubleQuotes(value);
+            value = _.padEnd(value, value.length + 2, " " + major_symbol);
+            value = padMajorSymbol(value);
             if (key != _.size(textArray) - 1) {
-                value = _.padEnd(value, value.length + 2, " +");
+                value = _.padEnd(value, value.length + 2, " " + connector_symbol);
             }
-            
-			result += value + "\n";
+
+            result += value + "\n";
         });
 
         return result;
@@ -221,13 +263,13 @@
         let textArray = _.split(text, "\n");
         _.forEach(textArray, function (value, key) {
             value = _.trimEnd(value);
-            value = removeDoubleQuotes(value);
+            value = removeMajorSymbol(value);
             if (key != _.size(textArray) - 1) {
-                value = _.trimEnd(value, MAJOR_STRING_SYMBOL + " +");
+                value = _.trimEnd(value, major_symbol + " " + connector_symbol);
                 result += value + "\n";
             }
             else {
-                value = _.trimEnd(value, MAJOR_STRING_SYMBOL);
+                value = _.trimEnd(value, major_symbol);
                 result += value;
             }
 
@@ -236,15 +278,13 @@
         return result;
     }
 
-    // pad double quotes in front and end
-    function padDoubleQuotes(text) {
+    function padMajorSymbol(text) {
         let insertPos = getFirstNotSpacePosition(text);
-        text = text.slice(0, insertPos) + MAJOR_STRING_SYMBOL + text.slice(insertPos);
+        text = text.slice(0, insertPos) + major_symbol + text.slice(insertPos);
         return text;
     }
 
-    // pad double quotes in front and end
-    function removeDoubleQuotes(text) {
+    function removeMajorSymbol(text) {
         let insertPos = getFirstNotSpacePosition(text);
         text = text.slice(0, insertPos) + text.slice(insertPos + 1);
         return text;
