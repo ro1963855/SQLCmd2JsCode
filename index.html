@@ -99,7 +99,9 @@
 
 <script>
     const TAB_SPACING = 4;
-
+	const MAJOR_STRING_SYMBOL = "'";
+	const SUB_STRING_SYMBOL = "'\"";
+	
     $(document).ready(function () {
         initTabInput();
     });
@@ -160,7 +162,7 @@
     function getSQL2JsString(inputText) {
         let outputText = inputText;
         outputText = replaceTab2Spacing(outputText);
-        outputText = replaceAll(outputText, "\"", "'");
+        outputText = replaceAll(outputText, MAJOR_STRING_SYMBOL, SUB_STRING_SYMBOL);
         outputText = translate2JsString(outputText);
 
         return outputText;
@@ -201,18 +203,14 @@
         _.forEach(textArray, function (value, key) {
             value = _.trimEnd(value);
             // pad space and double quotes in the end
-            value = _.padEnd(value, value.length + 2, " \"");
+            value = _.padEnd(value, value.length + 2, " " + MAJOR_STRING_SYMBOL);
             // pad double quotes in front
             value = padDoubleQuotes(value);
             if (key != _.size(textArray) - 1) {
                 value = _.padEnd(value, value.length + 2, " +");
-                result += value + "\n";
             }
-            else {
-                value = _.padEnd(value, value.length + 1, ";");
-                result += value;
-            }
-
+            
+			result += value + "\n";
         });
 
         return result;
@@ -225,11 +223,11 @@
             value = _.trimEnd(value);
             value = removeDoubleQuotes(value);
             if (key != _.size(textArray) - 1) {
-                value = _.trimEnd(value, "\" +");
+                value = _.trimEnd(value, MAJOR_STRING_SYMBOL + " +");
                 result += value + "\n";
             }
             else {
-                value = _.trimEnd(value, "\";");
+                value = _.trimEnd(value, MAJOR_STRING_SYMBOL);
                 result += value;
             }
 
@@ -241,7 +239,7 @@
     // pad double quotes in front and end
     function padDoubleQuotes(text) {
         let insertPos = getFirstNotSpacePosition(text);
-        text = text.slice(0, insertPos) + "\"" + text.slice(insertPos);
+        text = text.slice(0, insertPos) + MAJOR_STRING_SYMBOL + text.slice(insertPos);
         return text;
     }
 
